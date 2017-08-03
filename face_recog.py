@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 13 13:20:39 2017
+Spyder Editor
 
-@author: Visharg Shah
+This is a temporary script file.
 """
+
+# -*- coding: utf-8 -*-
 
 ##############################Dataset_Creator##############################
 
@@ -11,7 +13,7 @@ Created on Thu Jul 13 13:20:39 2017
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
-import sqlite3
+
 
 #####User Input#####
 ID = input("Enter the ID:  ")
@@ -25,26 +27,9 @@ samplenum = 0
 
 #####Frontface Cascade#####
 cam = cv2.VideoCapture(0)
-facedetect = cv2.CascadeClassifier('C:/Users/Visharg Shah/Desktop/Face Detection/Face Recognition/haarcascade_frontalface_default.xml')
+facedetect = cv2.CascadeClassifier('data/haarcascade_frontalface_default.xml')
 
-#####All values in the database#####
-def update(ID, Name, Age, Gender, Criminal) :
-    connection = sqlite3.connect("V:/Software/SQLiteStudio/FaceDatabase.db")
-    cmd = "SELECT * FROM People WHERE ID="+str(ID)
-    details = connection.execute(cmd)
-    recordexist = 0
-    for row in details:
-        recordexist = 1
-    if(recordexist==1):
-        cmd = "UPDATE People SET Name="+str(Name)+", Age="+str(Age)+", Gender="+str(Gender)+", CriminalRecords="+str(Criminal)+" WHERE ID=" + str(ID)
-    else:
-        cmd = "INSERT into People(ID,Name,Age,Gender,CriminalRecords) values (?,?,?,?,?)"
-        par = (ID,Name,Age,Gender,Criminal)
-        connection.execute(cmd,par)
-        connection.commit()
-        connection.close()
-            
-update(ID,Name,Age,Gender,Criminal)
+
 
 #####Capturing images from web cam#####
 while(cam.isOpened()):  # check !
@@ -76,25 +61,6 @@ import cv2
 import numpy as np
 from PIL import Image
 
-#####Creating Face Recognizer#####
-recognizer = cv2.face.createLBPHFaceRecognizer()
-path = 'C:/Users/Visharg Shah/Desktop/Face Detection/Face Recognition/Face_Dataset'
-
-def getImageId(path):
-    imgpaths = [os.path.join(path,f) for f in os.listdir(path)]
-    faces = []
-    ids = []
-    for imgpath in imgpaths:
-        faceimg = Image.open(imgpath).convert('L')
-        facenp = np.array(faceimg,'uint8')
-        ID = int(os.path.split(imgpath)[-1].split(".")[1])
-        faces.append(facenp)
-        ids.append(ID)
-        cv2.imshow("training",facenp)
-        cv2.waitKey(10)
-    return np.array(ids) , faces
-
-ID , faces = getImageId(path)
 
 #####Training and saving the model#####
 recognizer.train(faces,ID)
@@ -115,20 +81,9 @@ samplenum = 0
 #####Face Recognizer and Classifier#####
 cam = cv2.VideoCapture(0)
 recognizer = cv2.face.createLBPHFaceRecognizer()
-recognizer.load('C:/Users/Visharg Shah/Desktop/Face Detection/Face Recognition/Recognizer/traindata.yml')
-facedetect = cv2.CascadeClassifier('C:/Users/Visharg Shah/Desktop/Face Detection/Face Recognition/haarcascade_frontalface_default.xml')
+recognizer.load('data/traindata.yml')
+facedetect = cv2.CascadeClassifier('data/haarcascade_frontalface_default.xml')
 
-#####Function to get ID for detected user#####
-def getID(ID):
-    connection = sqlite3.connect("V:/Software/SQLiteStudio/FaceDatabase.db")
-    cmd = "SELECT * FROM People where ID="+str(ID)
-    details = connection.execute(cmd)
-    profile = None
-    for det in details:
-        profile = det
-    connection.close()
-    return profile
-    
 #####Setting Font style to display#####
 font = cv2.FONT_HERSHEY_PLAIN
 
